@@ -29,18 +29,6 @@ dSiderBar <- dashboardSidebar(
     #           placement ="right", options = list(container = "body")),
     br(),
     box(
-      title = "Project upload",
-      background = "black",
-      status = "danger",
-      solidHeader = TRUE,
-      fileInput('file1', 'Choose Project File', accept = c('.RData')),
-      width = 12
-    ),
-    # bsPopover('file1', "",
-    #           paste0("Loads saved projects, including scenario settings and results."),
-    #           placement ="right", options = list(container = "body")),
-    br(),
-    box(
       title = "Scenarios Run",
       background = "black",
       status = "danger",
@@ -53,8 +41,6 @@ dSiderBar <- dashboardSidebar(
     #           placement ="right", options = list(container = "body")),
     br(),
     box(
-      textInput("wrkSpaceName", label = "Name the Project:"),
-      downloadButton('saveWrkspace', "Save Project"),
       h5("Latest Update:"),
       h5("2017-08-30"),
       h5("Contact email:"),
@@ -133,21 +119,28 @@ dashboardPage(
         
         h4("Disclaimer:"),
         
-        p("Access to the data used in this study was provided by Statistics New Zealand under
-          conditions designed to give effect to the security and confidentiality provisions of 
-          the Statistics Act 1975. The results presented in this study are the work of the author, 
-          not Statistics NZ."),
+        p("The results in this shiny application are not official statistics They have been created 
+            for research purposes from the Integrated Data Infrastructure (IDI), managed by Statistics New Zealand."), 
+        p("The opinions, findings, recommendations, and conclusions expressed in this shiny application are those of
+          the author(s), not Statistics NZ."), 
+        p("Access to the anonymised data used in this study was provided by Statistics NZ under
+          the security and confidentiality provisions of the Statistics Act 1975. Only people
+          authorised by the Statistics Act 1975 are allowed to see data about a particular person, household, 
+          business, or organisation, and the results in this shiny application have been confidentialised to 
+          protect these groups from identification and to keep their data safe."),
+        p("Careful consideration has been given to the privacy, security, and confidentiality issues associated
+          with using administrative and survey data in the IDI. Further detail can be found in the Privacy impact
+          assessment for the Integrated Data Infrastructure available from www.stats.govt.nz."),
         h4("To cite this application, please use the following,"),
         p(
-          "Milne, B., Chang, K., Shackleton, N., Zhu, T., Liu, C., von Randow, M., Lay-Yee, R., 
-          McLay, J., Davis, P. (2017) Shiny application: Knowledge laboratory of the early life-course. 
+          "Davis, P., Lay-Yee, R., Chang, K., von Randow, M., Milne, B. (2017) Shiny application: New Zealand as a Social Laboratory. 
           https://compassnz.shinyapps.io/NZLabShiny/"
         ),
         h4("The source code is stored in three places:"),
         HTML(
           "<ul>
           <li>Simario R package is at: <a href = \"https://github.com/kcha193/simarioV2\"> https://github.com/kcha193/simarioV2 </a>.</li>
-          <li>Shiny application is at: <a href = \"https://github.com/kcha193/KnowLabShiny\"> https://github.com/kcha193/KnowLabShiny </a>.</li>
+          <li>Shiny application is at: <a href = \"https://github.com/kcha193/NZLabShiny\"> https://github.com/kcha193/NZLabShiny </a>.</li>
           </ul>"
         ),
         p(""),

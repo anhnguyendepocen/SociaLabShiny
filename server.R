@@ -3,6 +3,7 @@ library(shiny)
 library(shinydashboard)
 library(DT)
 library(plotly)
+library(cowplot)
 library(dplyr)
 library(tidyr)
 library(openxlsx)
@@ -11,8 +12,8 @@ library(reshape2)
 shinyServer(function(input, output, session) {
   
   
-  baseSum <- load("base/BaseRes.Rata")
-  
+  load("base/BaseRes.Rata")
+
   
   rv <- reactiveValues(env.scenario = NULL, 
                        finalFormulaSB = NULL, 
@@ -29,28 +30,16 @@ shinyServer(function(input, output, session) {
   allVar <- c(names(timeInvRes), names(baseRes))
   
   
-  # catvars <- unique(c(time_invariant_vars$Varname[time_invariant_vars$Outcome_type=="categorical"], 
-  #                     getOutcomeVars(initialSim$simframe, "categorical"),  names(binbreaks)))
+
   
   catvars <- allVar[!grepl("_con", allVar)]
   
   
-  #contvars <- unique(c(getOutcomeVars(initialSim$simframe, "continuous"), 
-  #              time_invariant_vars$Varname[time_invariant_vars$Outcome_type=="continuous"]))
+
   
   contvars <- allVar[grepl("_con", allVar)]
   
-  # freqList <-  data.frame(Var =catvars, 
-  #                         Name = as.character(trimws(varName[catvars])), 
-  #                         stringsAsFactors = FALSE)
-  # 
-  # meansList <-  quantilesList <-data.frame(Var = contvars, 
-  #                                          Name = as.character(trimws(varName[contvars])), 
-  #                                          stringsAsFactors = FALSE)
-  # 
-  # meansList <- meansList[order(meansList$Name),]  
-  # 
-  # freqList <- freqList[order(freqList$Name),]  
+
   
   subGrpVar <- c("age", "sex",  "Maori", "Pacific", "Asian",
                  "Euro")
@@ -203,15 +192,53 @@ shinyServer(function(input, output, session) {
     
     names(inputType) = c("Percentage", "Mean","Quantile" )
     
-    
-    
     results <- 
     if(input$subGrp_TB == "None"){
       
-      c(baseRes, timeInvRes)[[input$dynamicTB]]
-    } else if(input$subGrp_TB == "age"){
+      if(input$dynamicTB == "age_cat"){
+        temp <- timeInvRes$age_cat
+        
+        temp$Var <- factor(temp$Var, 
+                           levels =
+                             c(
+                               "Early Childhood (0-14)",
+                               "Teenage Years (15-19)",
+                               "Young Adulthood (20-24)",
+                               "Middle Adulthood (25-34)" ,
+                               "Later Adulthood (35-54)" ,
+                               "Older Life Working (55-64)",
+                               "Older Life Retired (65-74)",
+                               "Later Life (75+)"
+                             ))
+        
+        temp
+      } else {
+        
+        
+        c(baseRes, timeInvRes)[[input$dynamicTB]]
+      }
       
-      byAgeRes[[input$dynamicTB]]
+    } else if(input$subGrp_TB == "age"){
+
+      temp <- byAgeRes[[input$dynamicTB]]
+      
+      temp$groupByData <-
+        factor(
+          temp$groupByData,
+          levels =
+            c(
+              "Early Childhood (0-14)",
+              "Teenage Years (15-19)",
+              "Young Adulthood (20-24)",
+              "Middle Adulthood (25-34)" ,
+              "Later Adulthood (35-54)" ,
+              "Older Life Working (55-64)",
+              "Older Life Retired (65-74)",
+              "Later Life (75+)"
+            )
+        )
+      
+      temp
     }  else if(input$subGrp_TB == "sex"){
       
       bySexRes[[input$dynamicTB]]
@@ -228,7 +255,6 @@ shinyServer(function(input, output, session) {
       
       byEuroRes[[input$dynamicTB]]
     }  
-    
     
     baseTB <<- results
     
@@ -305,113 +331,179 @@ shinyServer(function(input, output, session) {
       formatRound(which(!colnames(results) %in% notToRound), digits = 1)
   })
   
-  SBTB <<- NULL
+  
+
+  
+  
+  
+  
+  output$selectSB <- renderUI({
+    
+    
+    selectInput("selSB", "Select Scenario for comparison:",
+                choices =c("emp_86-91_81",
+                           "emp_96-01_91",
+                           "birthreg_86-06_81",
+                           "hinc_wchild_01-06_96",
+                           "emp_fem-wchild_01-06_96",
+                           "emp_fem-35-54_01_81",
+                           "emp_fem-15-34_81_01",
+                           "hous_35-54_01_81",
+                           "hous_15-34_81_01",
+                           "educ_81-96_01"),
+                selectize=TRUE)
+    
+    
+  })
+  
   
   # Scenario tables #####
-  # SBTB <<- NULL
-  # 
-  # 
-  # summaryOutputSBTB <- reactive({
-  #   
-  #   
-  #   inputType = c("frequencies", "means", "quantiles")
-  #   
-  #   names(inputType) = c("Percentage", "Mean","Quantile" )
-  #   
-  #   grpbyName = varList$Var[varList$Name==input$subGrp_TB] 
-  #   
-  #   print(input$selSB)
-  #   
-  #   if(length(grpbyName) == 0) grpbyName = ""
-  #   
-  #   if(input$basePop == "Base population (Before scenario testing)"){
-  #     results <-tableBuilderNew(rv$savedScenario[[input$selSB]], 
-  #                               statistic = inputType[input$input_type_TB], 
-  #                               variableName = varList$Var[varList$Name==input$dynamicTB],
-  #                               grpbyName = grpbyName, CI = input$ci, 
-  #                               logisetexpr = trimws(input$logisetexprTB),
-  #                               envBase = env.base, basePop = TRUE, digits = 5) 
-  #   } else {
-  #     results <-tableBuilderNew(rv$savedScenario[[input$selSB]], 
-  #                               statistic = inputType[input$input_type_TB], 
-  #                               variableName = varList$Var[varList$Name==input$dynamicTB],
-  #                               grpbyName = grpbyName, CI = input$ci, 
-  #                               logisetexpr = trimws(input$logisetexprTB),
-  #                               envBase = env.base, digits = 5)
-  #   }
-  #   
-  #   
-  #   
-  #   
-  #   SBTB <<-results
-  #   
-  #   results
-  # })
-  # 
-  # output$resultSBTB  <- DT::renderDataTable({
-  #   
-  #   results <- summaryOutputSBTB()
-  #   
-  #   
-  #   if(results$Year[1] ==  "Childhood" | results$Year[1] ==  "At birth"){
-  #     
-  #     
-  #   } else if(input$input_type_TB == "Percentage" &  "groupByData" %in% names(results) ){
-  #     if(length(unique(results$Var)) == 2)
-  #       results <- results[results$Var==input$Var_TB, ]
-  #     
-  #     results <- dcast(melt(results, id.vars = c("Var", "groupByData", "Year")), 
-  #                      Year~groupByData + Var + variable)
-  #     
-  #   }else if(input$input_type_TB == "Percentage"){
-  #     
-  #     if(length(unique(results$Var)) == 2)
-  #       results <- results[results$Var==input$Var_TB, ]
-  #     
-  #     results <- dcast(melt(results, id.vars = c("Var", "Year")), 
-  #                      Year~Var + variable)
-  #     
-  #   } else if(input$input_type_TB %in% c("Mean", "Quantile") & 
-  #             "groupByData" %in% names(results) ){
-  #     
-  #     if(length(unique(results$Var)) == 2)
-  #       results <- results[results$Var==input$Var_TB, ]
-  #     
-  #     results <- dcast(melt(results, id.vars = c("groupByData", "Year")), 
-  #                      Year ~ groupByData + variable)
-  #     
-  #   } else if(input$input_type_TB %in% c("Mean", "Quantile") &
-  #             "Var" %in% names(results)){
-  #     return(NULL)
-  #   }    
-  #   
-  #   index <- c(grep("Lower", colnames(results)), grep("Upper", colnames(results)))
-  #   
-  #   notToRound <- c("<span style=\"font-size:20px\">Year</span>", 
-  #                   "<span style=\"font-size:20px\">groupByData</span>", 
-  #                   "<span style=\"font-size:20px\">Var</span>")
-  #   
-  #   if(!input$ci)
-  #     results <- results[,-index]
-  #   
-  #   if(input$input_type_TB == "Percentage")
-  #     colnames(results) <- gsub("Mean", "Percent", colnames(results))
-  #   
-  #   
-  #   
-  #   rv$tableResult$Scenario <- results
-  #   
-  #   colnames(results) <- 
-  #     paste0('<span style="font-size:20px">',colnames(results),'</span>')
-  #   
-  #   DT::datatable(results, rownames = FALSE, extensions = 'Scroller', escape = FALSE,
-  #                 options = list(pageLength = 9999999, dom = 't',
-  #                                scrollX = TRUE,  deferRender = TRUE, scrollY = 600,
-  #                                scrollCollapse = TRUE))  %>%
-  #     formatStyle(1:ncol(results), 'font-size' = '20px') %>% 
-  #     formatRound(which(!colnames(results) %in% notToRound), digits = 1)
-  #   
-  # })
+  SBTB <<- NULL
+
+
+  summaryOutputSBTB <- reactive({
+    
+    
+    load(paste0("base/", input$selSB, ".Rata"))
+ 
+    
+    inputType = c("frequencies", "means", "quantiles")
+    
+    names(inputType) = c("Percentage", "Mean","Quantile" )
+    
+    results <- 
+      if(input$subGrp_TB == "None"){
+        
+        if(input$dynamicTB == "age_cat"){
+          temp <- scenTimeInvRes$age_cat
+          
+          temp$Var <- factor(temp$Var, 
+                             levels =
+                               c(
+                                 "Early Childhood (0-14)",
+                                 "Teenage Years (15-19)",
+                                 "Young Adulthood (20-24)",
+                                 "Middle Adulthood (25-34)" ,
+                                 "Later Adulthood (35-54)" ,
+                                 "Older Life Working (55-64)",
+                                 "Older Life Retired (65-74)",
+                                 "Later Life (75+)"
+                               ))
+          
+          temp
+        } else {
+          
+        c(scenRes, scenTimeInvRes)[[input$dynamicTB]]
+          
+        }
+      } else if(input$subGrp_TB == "age"){
+     
+        temp <- scenByAgeRes[[input$dynamicTB]]
+        
+        temp$groupByData <-
+          factor(
+            temp$groupByData,
+            levels =
+              c(
+                "Early Childhood (0-14)",
+                "Teenage Years (15-19)",
+                "Young Adulthood (20-24)",
+                "Middle Adulthood (25-34)" ,
+                "Later Adulthood (35-54)" ,
+                "Older Life Working (55-64)",
+                "Older Life Retired (65-74)",
+                "Later Life (75+)"
+              )
+          )
+        
+        temp
+      }  else if(input$subGrp_TB == "sex"){
+        
+        scenBySexRes[[input$dynamicTB]]
+      }  else if(input$subGrp_TB == "Maori"){
+        
+        scenByMaoriRes[[input$dynamicTB]]
+      }   else if(input$subGrp_TB == "Pacific"){
+        
+        scenByPacificRes[[input$dynamicTB]]
+      } else if(input$subGrp_TB == "Asian"){
+        
+        scenByAsianRes[[input$dynamicTB]]
+      }  else if(input$subGrp_TB == "Euro"){
+        
+        scenByEuroRes[[input$dynamicTB]]
+      }  
+    
+    SBTB <<- results
+    
+    results
+    
+  })
+  
+  output$resultSBTB  <- DT::renderDataTable({
+
+    results <- summaryOutputSBTB()
+
+
+    if(results$Year[1] ==  "Childhood" | results$Year[1] ==  "At birth"){
+
+
+    } else if(input$input_type_TB == "Percentage" &  "groupByData" %in% names(results) ){
+      if(length(unique(results$Var)) == 2)
+        results <- results[results$Var==input$Var_TB, ]
+
+      results <- dcast(melt(results, id.vars = c("Var", "groupByData", "Year")),
+                       Year~groupByData + Var + variable)
+
+    }else if(input$input_type_TB == "Percentage"){
+
+      if(length(unique(results$Var)) == 2)
+        results <- results[results$Var==input$Var_TB, ]
+
+      results <- dcast(melt(results, id.vars = c("Var", "Year")),
+                       Year~Var + variable)
+
+    } else if(input$input_type_TB %in% c("Mean", "Quantile") &
+              "groupByData" %in% names(results) ){
+
+      if(length(unique(results$Var)) == 2)
+        results <- results[results$Var==input$Var_TB, ]
+
+      results <- dcast(melt(results, id.vars = c("groupByData", "Year")),
+                       Year ~ groupByData + variable)
+
+    } else if(input$input_type_TB %in% c("Mean", "Quantile") &
+              "Var" %in% names(results)){
+      return(NULL)
+    }
+
+    index <- c(grep("Lower", colnames(results)), grep("Upper", colnames(results)))
+
+    notToRound <- c("<span style=\"font-size:20px\">Year</span>",
+                    "<span style=\"font-size:20px\">groupByData</span>",
+                    "<span style=\"font-size:20px\">Var</span>")
+
+    if(!input$ci)
+      results <- results[,-index]
+
+    if(input$input_type_TB == "Percentage")
+      colnames(results) <- gsub("Mean", "Percent", colnames(results))
+
+
+
+    rv$tableResult$Scenario <- results
+
+    colnames(results) <-
+      paste0('<span style="font-size:20px">',colnames(results),'</span>')
+
+    DT::datatable(results, rownames = FALSE, extensions = 'Scroller', escape = FALSE,
+                  options = list(pageLength = 9999999, dom = 't',
+                                 scrollX = TRUE,  deferRender = TRUE, scrollY = 600,
+                                 scrollCollapse = TRUE))  %>%
+      formatStyle(1:ncol(results), 'font-size' = '20px') %>%
+      formatRound(which(!colnames(results) %in% notToRound), digits = 1)
+
+  })
   
   # Display results from here  #####
   
@@ -462,6 +554,8 @@ shinyServer(function(input, output, session) {
     baseTB <-summaryOutputTB()
     
     SBTB <- try(summaryOutputSBTB(), silent = TRUE)
+    
+
     if(class(SBTB) == "try-error") SBTB <- NULL
     
     colname <- names(baseTB)
@@ -599,7 +693,6 @@ shinyServer(function(input, output, session) {
     limitsGGplot <- aes(ymax = Upper, ymin=Lower)
     dodge <- position_dodge(width=0.9)
     
-    
     tables.list$Year <- as.numeric(tables.list$Year)
     
     if(input$input_type_TB == "Percentage")
@@ -633,16 +726,20 @@ shinyServer(function(input, output, session) {
     limitsGGplot <- aes(ymax = Upper, ymin=Lower)
     dodge <- position_dodge(width=0.9)
     
+    tables.list$Year <- as.numeric(tables.list$Year)
+    
     if(input$input_type_TB == "Percentage")
       tables.list <- tables.list[tables.list$Var==input$Var_TB, ] 
     
+
     p <- if("groupByData" %in% names(tables.list))
-      ggplot(tables.list, aes(colour=groupByData, y = Mean, x = Year))
+      ggplot(tables.list, aes(y = Mean, x = Year)) + facet_wrap(~groupByData, scales = "free")
     else 
       ggplot(tables.list, aes(y = Mean, x = Year)) 
     
-    p  <- p+  ggtitle(input$dynamicTB) +  geom_path() +
-      geom_point(size = 2)+ theme(text = element_text(size = 15))
+    p  <- p + ggtitle(input$dynamicTB) +  geom_path() +
+      geom_point(size = 2)+ 
+      theme(text = element_text(size = 15))
     
     if(input$input_type_TB == "Percentage")
       p  <-  p + ylab("Percentage")
@@ -663,14 +760,18 @@ shinyServer(function(input, output, session) {
     limitsGGplot <- aes(ymax = Upper, ymin=Lower)
     dodge <- position_dodge(width=0.9)
     
+    tables.list$Year <- as.numeric(tables.list$Year)
+    
     if(input$input_type_TB == "Percentage")
       tables.list <- tables.list[tables.list$Var==input$Var_TB, ] 
     
+    
     p <- if("groupByData" %in% names(tables.list))
-      ggplot(tables.list, aes(y = Mean, x = Year, colour=Scenario)) + facet_wrap(~groupByData)
+      ggplot(tables.list, aes(y = Mean, x = Year, colour=Scenario)) + facet_wrap(~groupByData, scales = "free")
     else 
       ggplot(tables.list, aes(y = Mean, x = Year, colour=Scenario)) 
     
+
     
     p <- p +  ggtitle(input$dynamicTB) +  
       geom_path(position = dodge)+
