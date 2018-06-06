@@ -42,7 +42,7 @@ dSiderBar <- dashboardSidebar(
     br(),
     box(
       h5("Latest Update:"),
-      h5("2017-08-30"),
+      h5("2018-06-07"),
       h5("Contact email:"),
       a("Roy Lay-Yee", href = "mailto:r.layyee@auckland.ac.nz"),
       br(),
@@ -133,10 +133,10 @@ dashboardPage(
           assessment for the Integrated Data Infrastructure available from www.stats.govt.nz."),
         h4("To cite this application, please use the following,"),
         p(
-          "Davis, P., Lay-Yee, R., Chang, K., von Randow, M., Milne, B. (2017) Shiny application: New Zealand as a Social Laboratory. 
+          "Davis, P., Lay-Yee, R., Chang, K., von Randow, M., Milne, B. (2018) Shiny application: New Zealand as a Social Laboratory. 
           https://compassnz.shinyapps.io/NZLabShiny/"
         ),
-        h4("The source code is stored in three places:"),
+        h4("The source code is stored in two places:"),
         HTML(
           "<ul>
           <li>Simario R package is at: <a href = \"https://github.com/kcha193/simarioV2\"> https://github.com/kcha193/simarioV2 </a>.</li>
@@ -175,7 +175,7 @@ dashboardPage(
                   selectInput(
                     "input_type_TB",
                     HTML("<b> <font size=\"4\">STEP 1: </font></b> Select Summary Measure"),
-                    c("Percentage", "Mean", "Quantile")
+                    c("Percentage", "Mean")
                   ),
                   
                   uiOutput("uiTB"),

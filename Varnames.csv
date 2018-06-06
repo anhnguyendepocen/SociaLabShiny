@@ -1,25 +1,25 @@
 allVar,FullName
-age_con,
-age_cat,
-sex,
-Maori,
-Pacific,
-Asian,
-Euro,
-birthreg,
-birthregByAge,
-birthregBySex,
-livealone_curr,
-partner_curr,
-children_curr,
-religion_curr,
-education_curr,
-student_curr,
-h_income_curr_continous,
-p_income_curr_continous,
-h_income_curr_cat,
-p_income_curr_cat,
-emp_curr,
-p_benefits_curr,
-tenure_curr,
-dep_curr,
+age_con,Age
+age_cat,Age group
+sex,Gender
+Maori,Maori
+Pacific,Pacific
+Asian,Asian
+Euro,NZ European/Other
+birthreg,Region of birth
+birthregByAge,Region of birth by age group
+birthregBySex,Region of birth by gender
+livealone_curr,Live alone
+partner_curr,Partnered
+children_curr,Live wirh children
+religion_curr,Religion
+education_curr,Highest education level
+student_curr,In study/training
+h_income_curr_continous,Household income
+p_income_curr_continous,Personal income
+h_income_curr_cat,Household income bracket
+p_income_curr_cat,Personal income bracket
+emp_curr,Employment status
+p_benefits_curr,Welfare receipt
+tenure_curr,Housing tenure
+dep_curr,Deprivation level

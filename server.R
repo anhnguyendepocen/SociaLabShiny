@@ -30,21 +30,21 @@ shinyServer(function(input, output, session) {
   allVar <- c(names(timeInvRes), names(baseRes))
   
   
-
-  
   catvars <- allVar[!grepl("_con", allVar)]
   
   
-
-  
   contvars <- allVar[grepl("_con", allVar)]
   
-
   
   subGrpVar <- c("age", "sex",  "Maori", "Pacific", "Asian",
                  "Euro")
   
+  varnames <- read.csv("Varnames.csv", stringsAsFactors = FALSE)
  
+  varname.vec <- varnames$FullName
+  names(varname.vec) <- varnames$allVar
+  
+  
   
   #############################################################################################
   
@@ -57,14 +57,15 @@ shinyServer(function(input, output, session) {
   
   output$uiTB <- renderUI({
     
-
     temp <- HTML("<b> <font size=\"4\">STEP 2: </font></b> Choose variable:")
-    
+
     switch(input$input_type_TB,
-           "Percentage" = selectInput("dynamicTB", temp,choices = sort(catvars), 
-                                      selected = catvars[1]),
-           "Mean" = selectInput("dynamicTB", temp, choices =  sort(contvars),
-                                selected = contvars[1])
+           "Percentage" = selectInput("dynamicTB", temp, 
+                                      choices = as.character(sort(varname.vec[catvars])), 
+                                      selected = as.character(sort(varname.vec[catvars]))[1]),
+           "Mean" = selectInput("dynamicTB", temp, 
+                                choices =  as.character(sort(varname.vec[contvars])),
+                                selected = as.character(sort(varname.vec[contvars]))[1])
            )
   })
   
@@ -72,115 +73,12 @@ shinyServer(function(input, output, session) {
     
     input$input_type_TB
     
-    selectInput("subGrp_TB", HTML("<b> <font size=\"4\">STEP 3 (optional): </font></b> Select ByGroup:"), 
+    selectInput("subGrp_TB",
+                HTML("<b> <font size=\"4\">STEP 3 (optional): </font></b> Select ByGroup:"), 
                 choices = c(None='None',  subGrpVar))
   })
   
-  # Subgroup formula ####
-  # output$uiExprTB <- renderUI({
-  #   input$input_type_TB
-  #   
-  #   selectInput("subGrp_TB1", HTML("<b> <font size=\"4\">STEP 4 (optional): </font></b> Select Subgroup for subgroup formula:"),
-  #               choices = c(None='None',  subGrpVar))
-  # })
-  # 
-  # output$uiExprTB1 <- renderUI({
-  #   
-  #   #print(names(env.base$dict$codings[[names(which(varName == input$subGrp_TB1))]]))
-  #   if(input$subGrp_TB1 == "None")
-  #     return()
-  #   else  
-  #     choice <- names(env.base$dict$codings[[varList$Var[varList$Name == input$subGrp_TB1]]])
-  #   
-  #   isolate(
-  #     if(is.null(choice)){
-  #       inputPanel(
-  #         div( class = "ui-hide-label", style="float:left",
-  #              selectInput("subGrp_TB2", input$subGrp_TB1, 
-  #                          choices = c("Equals" = " == ",  "Less than" = " < ", 
-  #                                      "Greater than" = " > ", "Less than or equal to" = " <= ", 
-  #                                      "Greater than or equal to" = " >= ", "Not equals to " = " != "), 
-  #                          selectize=FALSE)),
-  #         div( class = "ui-hide-label", style="float:left", textInput("subGrpNum_TB2", ""))
-  #       )
-  #       
-  #     } else {
-  #       selectInput("subGrp_TB2", input$subGrp_TB1,
-  #                   choices = choice, 
-  #                   selectize=FALSE)
-  #     }
-  #   )
-  # })
-  # 
-  # 
-  # logisetexprTB <-eventReactive( input$completeTB, {
-  #   # Depending on input$input_type, we'll generate a different
-  #   # UI component and send it to the client.
-  #   
-  #   if(input$subGrp_TB1 == "None")
-  #     return()
-  #   
-  #   index = env.base$dict$codings[[varList$Var[varList$Name == input$subGrp_TB1]]][
-  #     (names(env.base$dict$codings[[varList$Var[varList$Name == input$subGrp_TB1]]])==
-  #        input$subGrp_TB2)]
-  #   
-  #   if(is.null(index)){
-  #     paste(varList$Var[varList$Name == input$subGrp_TB1], 
-  #           paste(input$subGrp_TB2, input$subGrpNum_TB2), sep = " ")    
-  #   }else{
-  #     paste(varList$Var[varList$Name == input$subGrp_TB1], index, sep = " == ")
-  #   }
-  #   
-  # })
-  # 
-  # logisetexprTB1 <-eventReactive(input$operatorTB, {
-  #   # Depending on input$input_type, we'll generate a different
-  #   # UI component and send it to the client.
-  #   
-  #   index = input$subGrp_TB2
-  #   
-  #   if(is.null(index)){
-  #     paste( input$subGrp_TB1, paste(input$subGrp_TB2, input$subGrpNum_TB2), sep = " ")    
-  #   }else{
-  #     paste(input$subGrp_TB1, index, sep = " == ")
-  #   }
-  # })
-  # 
-  # observeEvent( input$leftBrackTB, { 
-  #   rv$finalFormulaTB <- paste0("(", rv$finalFormulaTB)
-  # })
-  # 
-  # observeEvent( input$rightBrackTB, { 
-  #   rv$finalFormulaTB <-  paste0(rv$finalFormulaTB,")")
-  # })
-  # 
-  # 
-  # observeEvent( input$andTB, { 
-  #   rv$finalFormulaTB <- paste(rv$finalFormulaTB, "&")
-  # })
-  # 
-  # observeEvent( input$orTB, { 
-  #   rv$finalFormulaTB <- paste(rv$finalFormulaTB,  "|")
-  # })
-  # 
-  # observeEvent( input$completeTB, { 
-  #   
-  #   rv$finalFormulaTB <- paste(rv$finalFormulaTB, logisetexprTB())
-  # })
-  # 
-  # observeEvent( input$resetTB, { 
-  #   rv$finalFormulaTB <- NULL
-  # })
-  # 
-  # output$uilogisetexprTB <- renderUI({  
-  #   textareaInput("logisetexprTB",  "Subgroup formula:", value = rv$finalFormulaTB)
-  # })
-  # 
-  # observeEvent( input$logisetexprSB, { 
-  #   rv$finalFormulaTB <- input$logisetexprTB
-  # })
-  
-  
+ 
   # Tables starts here ####
   
   baseTB <<- NULL 
@@ -192,10 +90,13 @@ shinyServer(function(input, output, session) {
     
     names(inputType) = c("Percentage", "Mean","Quantile" )
     
+    
+    selectVar <- names(varname.vec) [varname.vec %in% input$dynamicTB]
+    
     results <- 
     if(input$subGrp_TB == "None"){
       
-      if(input$dynamicTB == "age_cat"){
+      if(input$dynamicTB == "Age group"){
         temp <- timeInvRes$age_cat
         
         temp$Var <- factor(temp$Var, 
@@ -215,12 +116,12 @@ shinyServer(function(input, output, session) {
       } else {
         
         
-        c(baseRes, timeInvRes)[[input$dynamicTB]]
+        c(baseRes, timeInvRes)[[selectVar]]
       }
       
-    } else if(input$subGrp_TB == "age"){
+    } else if(input$subGrp_TB == "Age"){
 
-      temp <- byAgeRes[[input$dynamicTB]]
+      temp <- byAgeRes[[selectVar]]
       
       temp$groupByData <-
         factor(
@@ -241,19 +142,19 @@ shinyServer(function(input, output, session) {
       temp
     }  else if(input$subGrp_TB == "sex"){
       
-      bySexRes[[input$dynamicTB]]
+      bySexRes[[selectVar]]
     }  else if(input$subGrp_TB == "Maori"){
       
-      byMaoriRes[[input$dynamicTB]]
+      byMaoriRes[[selectVar]]
     }   else if(input$subGrp_TB == "Pacific"){
       
-      byPacificRes[[input$dynamicTB]]
+      byPacificRes[[selectVar]]
     } else if(input$subGrp_TB == "Asian"){
       
-      byAsianRes[[input$dynamicTB]]
+      byAsianRes[[selectVar]]
     }  else if(input$subGrp_TB == "Euro"){
       
-      byEuroRes[[input$dynamicTB]]
+      byEuroRes[[selectVar]]
     }  
     
     baseTB <<- results
@@ -332,11 +233,6 @@ shinyServer(function(input, output, session) {
   })
   
   
-
-  
-  
-  
-  
   output$selectSB <- renderUI({
     
     
@@ -371,10 +267,13 @@ shinyServer(function(input, output, session) {
     
     names(inputType) = c("Percentage", "Mean","Quantile" )
     
+    selectVar <- names(varname.vec) [varname.vec %in% input$dynamicTB]
+    
+    
     results <- 
       if(input$subGrp_TB == "None"){
         
-        if(input$dynamicTB == "age_cat"){
+        if(input$dynamicTB == "Age group"){
           temp <- scenTimeInvRes$age_cat
           
           temp$Var <- factor(temp$Var, 
@@ -393,12 +292,12 @@ shinyServer(function(input, output, session) {
           temp
         } else {
           
-        c(scenRes, scenTimeInvRes)[[input$dynamicTB]]
+        c(scenRes, scenTimeInvRes)[[selectVar]]
           
         }
-      } else if(input$subGrp_TB == "age"){
+      } else if(input$subGrp_TB == "Age"){
      
-        temp <- scenByAgeRes[[input$dynamicTB]]
+        temp <- scenByAgeRes[[selectVar]]
         
         temp$groupByData <-
           factor(
@@ -419,19 +318,19 @@ shinyServer(function(input, output, session) {
         temp
       }  else if(input$subGrp_TB == "sex"){
         
-        scenBySexRes[[input$dynamicTB]]
+        scenBySexRes[[selectVar]]
       }  else if(input$subGrp_TB == "Maori"){
         
-        scenByMaoriRes[[input$dynamicTB]]
+        scenByMaoriRes[[selectVar]]
       }   else if(input$subGrp_TB == "Pacific"){
         
-        scenByPacificRes[[input$dynamicTB]]
+        scenByPacificRes[[selectVar]]
       } else if(input$subGrp_TB == "Asian"){
         
-        scenByAsianRes[[input$dynamicTB]]
+        scenByAsianRes[[selectVar]]
       }  else if(input$subGrp_TB == "Euro"){
         
-        scenByEuroRes[[input$dynamicTB]]
+        scenByEuroRes[[selectVar]]
       }  
     
     SBTB <<- results
@@ -528,14 +427,14 @@ shinyServer(function(input, output, session) {
   output$downloadTable <- downloadHandler(
     filename = function() {
       paste('Table Result-',  input$input_type_TB, " ", 
-            input$dynamicTB, " ", 
+            varname.vec[input$dynamicTB], " ", 
             input$selSB, '.xlsx', sep='')
     },
     content = function(con) {
       
       print(rv$finalFormulaSB)
       
-      temp <- data.frame(Variable = input$dynamicTB)
+      temp <- data.frame(Variable = varname.vec[input$dynamicTB])
       
       if(input$selSB != "")
         temp$Scenario = input$selSB
@@ -594,7 +493,7 @@ shinyServer(function(input, output, session) {
     else 
       ggplot(tables.list, aes(y = Mean, x = Year)) 
     
-    p  <-  p +  ggtitle(input$dynamicTB) + 
+    p  <-  p +  ggtitle(varname.vec[input$dynamicTB]) + 
       geom_bar(position="dodge", stat = "identity") + 
       theme(text = element_text(size = 15))
     
@@ -630,7 +529,7 @@ shinyServer(function(input, output, session) {
     else 
       ggplot(tables.list, aes(y = Mean, x = Year)) 
     
-    p  <-  p +  ggtitle(input$dynamicTB) + 
+    p  <-  p +  ggtitle(varname.vec[input$dynamicTB]) + 
       geom_bar(position="dodge", stat = "identity") + 
       theme(text = element_text(size = 15))
     
@@ -666,7 +565,7 @@ shinyServer(function(input, output, session) {
       ggplot(tables.list, aes(fill=Scenario, y = Mean, x = Year)) 
     
     p <- 
-      p + ggtitle(input$dynamicTB) + 
+      p + ggtitle(varname.vec[input$dynamicTB]) + 
       geom_bar(position=dodge, stat = "identity") + 
       theme(text = element_text(size = 15))
     
@@ -703,7 +602,8 @@ shinyServer(function(input, output, session) {
     else 
       ggplot(tables.list, aes(y = Mean, x = Year)) 
     
-    p  <- p + ggtitle(input$dynamicTB) +  geom_path() +
+    p  <- p + ggtitle(varname.vec[input$dynamicTB]) +  
+      geom_path() +
       geom_point(size = 2)+ 
       theme(text = element_text(size = 15))
     
@@ -737,7 +637,8 @@ shinyServer(function(input, output, session) {
     else 
       ggplot(tables.list, aes(y = Mean, x = Year)) 
     
-    p  <- p + ggtitle(input$dynamicTB) +  geom_path() +
+    p  <- p + ggtitle(varname.vec[input$dynamicTB]) + 
+      geom_path() +
       geom_point(size = 2)+ 
       theme(text = element_text(size = 15))
     
@@ -773,7 +674,7 @@ shinyServer(function(input, output, session) {
     
 
     
-    p <- p +  ggtitle(input$dynamicTB) +  
+    p <- p +  ggtitle(varname.vec[input$dynamicTB]) +  
       geom_path(position = dodge)+
       geom_point(size = 2, position = dodge) + 
       theme(text = element_text(size = 15))
@@ -806,7 +707,7 @@ shinyServer(function(input, output, session) {
       ggplot(tables.list, aes(x = Year,  ymin = `Min`, lower = `X25th`, 
                               middle = `X50th`, upper = `X75th`, ymax = `Max`)) 
     
-    p  <- p + ggtitle(input$dynamicTB) + 
+    p  <- p + ggtitle(varname.vec[input$dynamicTB]) + 
       geom_boxplot(stat = "identity") + theme(text = element_text(size = 15))
     
     p
@@ -831,7 +732,7 @@ shinyServer(function(input, output, session) {
       ggplot(tables.list, aes(x = Year,  ymin = `Min`, lower = `X25th`, 
                               middle = `X50th`, upper = `X75th`, ymax = `Max`)) 
     
-    p  <- p + ggtitle(input$dynamicTB) + 
+    p  <- p + ggtitle(varname.vec[input$dynamicTB]) + 
       geom_boxplot(stat = "identity") + theme(text = element_text(size = 15))
     
     p
@@ -854,7 +755,7 @@ shinyServer(function(input, output, session) {
       ggplot(tables.list, aes(fill =Scenario, x = Year,  ymin = `Min`, lower = `X25th`, 
                               middle = `X50th`, upper = `X75th`, ymax = `Max`)) 
     
-    p  <- p + ggtitle(input$dynamicTB) + 
+    p  <- p + ggtitle(varname.vec[input$dynamicTB]) + 
       geom_boxplot(stat = "identity") + theme(text = element_text(size = 15))
     
     p
