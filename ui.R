@@ -133,7 +133,7 @@ dashboardPage(
           assessment for the Integrated Data Infrastructure available from www.stats.govt.nz."),
         h4("To cite this application, please use the following,"),
         p(
-          "Davis, P., Lay-Yee, R., Chang, K., von Randow, M., Milne, B. (2018) Shiny application: New Zealand as a Social Laboratory. 
+          "Davis, P., Lay-Yee, R., Chang, K., von Randow, M., (2018) Shiny application: New Zealand as a Social Laboratory. 
           https://compassnz.shinyapps.io/NZLabShiny/"
         ),
         h4("The source code is stored in two places:"),
