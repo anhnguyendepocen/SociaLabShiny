@@ -7,14 +7,16 @@ library(shinyBS)
 options(shiny.maxRequestSize = 10000 * 1024 ^ 2)
 
 
-dbHeader <- dashboardHeader(title = "NZ Lab",
-                            tags$li(
-                              a(href = 'https://drive.google.com/open?id=0ByGI4aqoCDeldHdNaDBLQzFLXzg',
-                                "User guide", target = "_blank"),
-                              class = "dropdown",
-                              tags$style(".main-header {max-height: 58px}"),
-                              tags$style(".main-header .logo {height: 60px}")
-                            ))
+dbHeader <- dashboardHeader(title = "NZ Lab"
+                            # ,
+                            # tags$li(
+                            #   a(href = 'https://drive.google.com/open?id=0ByGI4aqoCDeldHdNaDBLQzFLXzg',
+                            #     "User guide", target = "_blank"),
+                            #   class = "dropdown",
+                            #   tags$style(".main-header {max-height: 58px}"),
+                            #   tags$style(".main-header .logo {height: 60px}")
+                            # )
+                            )
 
 dSiderBar <- dashboardSidebar(
   sidebarMenu(
@@ -110,27 +112,29 @@ dashboardPage(
           policy significance. "
         ),
         p(
-          "We ask such pertinent questions here in a series of scenarios the results for 
-          which can be interrogated and visualised via this Shiny app, an accompaniment to
-          our book “Simulating Societal Change - Counterfactual Modelling for Social and 
-          Policy Inquiry” (Springer)."
+          "Please could you insert the book authors names and year in the following paragraph -
+          We ask such pertinent questions here in a series of scenarios the results for which can
+          be interrogated and visualised via this Shiny app, an accompaniment to our book 
+          \"imulating Societal Change - Counterfactual Modelling for Social and Policy Inquiry\" -
+          Peter Davis & Roy Lay-Yee (Springer 2018)."
         ),
         
         
         h4("Disclaimer:"),
         
-        p("The results in this shiny application are not official statistics They have been created 
-            for research purposes from the Integrated Data Infrastructure (IDI), managed by Statistics New Zealand."), 
-        p("The opinions, findings, recommendations, and conclusions expressed in this shiny application are those of
+        p("The results in this Shiny application are not official statistics They have been created 
+            for research purposes."), 
+        p("The opinions, findings, recommendations, and conclusions expressed in this Shiny application are those of
           the author(s), not Statistics NZ."), 
         p("Access to the anonymised data used in this study was provided by Statistics NZ under
           the security and confidentiality provisions of the Statistics Act 1975. Only people
           authorised by the Statistics Act 1975 are allowed to see data about a particular person, household, 
-          business, or organisation, and the results in this shiny application have been confidentialised to 
+          business, or organisation, and the results in this Shiny application have been confidentialised to 
           protect these groups from identification and to keep their data safe."),
         p("Careful consideration has been given to the privacy, security, and confidentiality issues associated
-          with using administrative and survey data in the IDI. Further detail can be found in the Privacy impact
-          assessment for the Integrated Data Infrastructure available from www.stats.govt.nz."),
+          with using administrative and survey data. Further detail can be found in the Privacy impact
+          assessment available from www.stats.govt.nz."),
+        
         h4("To cite this application, please use the following,"),
         p(
           "Davis, P., Lay-Yee, R., Chang, K., von Randow, M., (2018) Shiny application: New Zealand as a Social Laboratory. 
@@ -146,20 +150,20 @@ dashboardPage(
         p(""),
         a(
           href = "http://www.arts.auckland.ac.nz/en/about/our-research/research-centres-and-archives/compass.html",
-          img(src = "http://www.arts.auckland.ac.nz/en/about/our-research/research-centres-and-archives/compass/_jcr_content/par/textimage/image.img.png/1443396492336.png",
+          img(src = "http://www.arts.auckland.ac.nz/en/about/our-research/research-centres-and-archives/compass/_jcr_content/par/contentblock_1919153551/par/image.img.png/1529547380837.png",
               width = 200)
         ),
         br(),
-        br(),
-        actionButton(
-          inputId = 'ab1',
-          label = HTML(
-            "<b> <font size=\"4\"> Getting Started </font> </b> <br><b> <font size=\"4\"> (User Guide)  </font></b>"
-          ),
-          width = "200px",
-          hight = "100px",
-          onclick = "window.open('https://drive.google.com/open?id=0ByGI4aqoCDeldHdNaDBLQzFLXzg', '_blank')"
-        )
+        br()
+        # actionButton(
+        #   inputId = 'ab1',
+        #   label = HTML(
+        #     "<b> <font size=\"4\"> Getting Started </font> </b> <br><b> <font size=\"4\"> (User Guide)  </font></b>"
+        #   ),
+        #   width = "200px",
+        #   hight = "100px",
+        #   onclick = "window.open('https://drive.google.com/open?id=0ByGI4aqoCDeldHdNaDBLQzFLXzg', '_blank')"
+        # )
         )
         ),
       #box( width = 6,  includeHTML("ppt.Rhtml"))),

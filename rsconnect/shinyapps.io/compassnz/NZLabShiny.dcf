@@ -5,8 +5,8 @@ account: compassnz
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 309242
-bundleId: 1415584
+bundleId: 1465237
 url: https://compassnz.shinyapps.io/NZLabShiny/
-when: 1528321022.91919
+when: 1530743749.58109
 asMultiple: FALSE
 asStatic: FALSE

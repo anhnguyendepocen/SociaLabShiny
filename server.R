@@ -3,7 +3,7 @@ library(shiny)
 library(shinydashboard)
 library(DT)
 library(plotly)
-library(cowplot)
+#library(cowplot)
 library(dplyr)
 library(tidyr)
 library(openxlsx)
@@ -166,9 +166,13 @@ shinyServer(function(input, output, session) {
   
   output$uiVar <- renderUI({
     # if(length(unique(summaryOutputTB()$Year))!=1)
+   
+    
+    varlist <- as.character( unique(summaryOutputTB()$Var))
+    
     selectInput("Var_TB", "Select a level to compare in plot:",  
-                selected = unique(summaryOutputTB()$Var)[2], 
-                choices = unique(summaryOutputTB()$Var))
+                selected =varlist[2], 
+                choices = varlist)
   })
   
   
@@ -237,7 +241,9 @@ shinyServer(function(input, output, session) {
     
     
     selectInput("selSB", "Select Scenario for comparison:",
-                choices =c("emp_86-91_81",
+                choices =c("allvars_91-06_86", 
+                            "allvars_M-like-NM",
+                          "emp_86-91_81",
                            "emp_96-01_91",
                            "birthreg_86-06_81",
                            "hinc_wchild_01-06_96",
@@ -406,7 +412,6 @@ shinyServer(function(input, output, session) {
   
   # Display results from here  #####
   
-  
   output$ciUI <- 
     renderUI({
       tagList(
@@ -470,12 +475,10 @@ shinyServer(function(input, output, session) {
     combineResults
   })
   
-  
   output$barchartBase<- renderPlotly({
     
-    
     tables.list <- combineResults()
-    
+
     tables.list <- tables.list %>% filter(Scenario == "Base")
     
     colname <- names(summaryOutputTB())
@@ -493,7 +496,7 @@ shinyServer(function(input, output, session) {
     else 
       ggplot(tables.list, aes(y = Mean, x = Year)) 
     
-    p  <-  p +  ggtitle(varname.vec[input$dynamicTB]) + 
+    p  <-  p + ggtitle(input$dynamicTB) + 
       geom_bar(position="dodge", stat = "identity") + 
       theme(text = element_text(size = 15))
     
@@ -529,7 +532,7 @@ shinyServer(function(input, output, session) {
     else 
       ggplot(tables.list, aes(y = Mean, x = Year)) 
     
-    p  <-  p +  ggtitle(varname.vec[input$dynamicTB]) + 
+    p  <-  p + ggtitle(input$dynamicTB) + 
       geom_bar(position="dodge", stat = "identity") + 
       theme(text = element_text(size = 15))
     
@@ -542,8 +545,6 @@ shinyServer(function(input, output, session) {
     
     ggplotly(p)
   })
-  
-  
   
   output$barchart<- renderPlotly({
     
@@ -565,7 +566,7 @@ shinyServer(function(input, output, session) {
       ggplot(tables.list, aes(fill=Scenario, y = Mean, x = Year)) 
     
     p <- 
-      p + ggtitle(varname.vec[input$dynamicTB]) + 
+      p + ggtitle(input$dynamicTB) +
       geom_bar(position=dodge, stat = "identity") + 
       theme(text = element_text(size = 15))
     
@@ -579,8 +580,6 @@ shinyServer(function(input, output, session) {
     
     ggplotly(p)
   })
-  
-  
   
   output$linePlotBase<- renderPlotly({
     
@@ -602,7 +601,7 @@ shinyServer(function(input, output, session) {
     else 
       ggplot(tables.list, aes(y = Mean, x = Year)) 
     
-    p  <- p + ggtitle(varname.vec[input$dynamicTB]) +  
+    p  <- p + ggtitle(input$dynamicTB) +
       geom_path() +
       geom_point(size = 2)+ 
       theme(text = element_text(size = 15))
@@ -637,7 +636,7 @@ shinyServer(function(input, output, session) {
     else 
       ggplot(tables.list, aes(y = Mean, x = Year)) 
     
-    p  <- p + ggtitle(varname.vec[input$dynamicTB]) + 
+    p  <- p + ggtitle(input$dynamicTB) +
       geom_path() +
       geom_point(size = 2)+ 
       theme(text = element_text(size = 15))
@@ -674,7 +673,7 @@ shinyServer(function(input, output, session) {
     
 
     
-    p <- p +  ggtitle(varname.vec[input$dynamicTB]) +  
+    p <- p + ggtitle(input$dynamicTB) +
       geom_path(position = dodge)+
       geom_point(size = 2, position = dodge) + 
       theme(text = element_text(size = 15))
@@ -690,83 +689,7 @@ shinyServer(function(input, output, session) {
   })
   
   
-  output$boxPlotBase<- renderPlot({
-    
-    input$ci
-    
-    tables.list <- combineResults()
-    
-    tables.list <- tables.list %>% filter(Scenario == "Base")
-    
-    colname <- names(summaryOutputTB())
-    
-    p <- if("groupByData" %in% names(tables.list))
-      ggplot(tables.list, aes(fill =groupByData, x = Year,  ymin = `Min`, lower = `X25th`, 
-                              middle = `X50th`, upper = `X75th`, ymax = `Max`)) 
-    else 
-      ggplot(tables.list, aes(x = Year,  ymin = `Min`, lower = `X25th`, 
-                              middle = `X50th`, upper = `X75th`, ymax = `Max`)) 
-    
-    p  <- p + ggtitle(varname.vec[input$dynamicTB]) + 
-      geom_boxplot(stat = "identity") + theme(text = element_text(size = 15))
-    
-    p
-  })
-  
-  
-  
-  output$boxPlotSC<- renderPlot({
-    
-    input$ci
-    
-    tables.list <- combineResults()
-    
-    tables.list <- tables.list %>% filter(Scenario == "Scenario")
-    
-    colname <- names(summaryOutputTB())
-    
-    p <- if("groupByData" %in% names(tables.list))
-      ggplot(tables.list, aes(fill =groupByData, x = Year,  ymin = `Min`, lower = `X25th`, 
-                              middle = `X50th`, upper = `X75th`, ymax = `Max`)) 
-    else 
-      ggplot(tables.list, aes(x = Year,  ymin = `Min`, lower = `X25th`, 
-                              middle = `X50th`, upper = `X75th`, ymax = `Max`)) 
-    
-    p  <- p + ggtitle(varname.vec[input$dynamicTB]) + 
-      geom_boxplot(stat = "identity") + theme(text = element_text(size = 15))
-    
-    p
-    
-  })
-  
-  output$boxPlot<- renderPlot({
-    
-    input$ci
-    
-    tables.list <- combineResults()
-    
-    colname <- names(summaryOutputTB())
-    
-    
-    p <- if("groupByData" %in% names(tables.list))
-      ggplot(tables.list, aes(fill =Scenario, x = Year,  ymin = `Min`, lower = `X25th`, 
-                              middle = `X50th`, upper = `X75th`, ymax = `Max`)) + facet_wrap(~groupByData)
-    else 
-      ggplot(tables.list, aes(fill =Scenario, x = Year,  ymin = `Min`, lower = `X25th`, 
-                              middle = `X50th`, upper = `X75th`, ymax = `Max`)) 
-    
-    p  <- p + ggtitle(varname.vec[input$dynamicTB]) + 
-      geom_boxplot(stat = "identity") + theme(text = element_text(size = 15))
-    
-    p
-    
-  })
-  
-
-  
   output$downloadPlot <- downloadHandler(
-    
-    
     filename = function() {
       
       if(input$input_type_TB == "Quantile"){
