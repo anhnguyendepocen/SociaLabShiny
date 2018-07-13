@@ -7,8 +7,6 @@ Pacific,Pacific
 Asian,Asian
 Euro,NZ European/Other
 birthreg,Region of birth
-birthregByAge,Region of birth by age group
-birthregBySex,Region of birth by gender
 livealone_curr,Live alone
 partner_curr,Partnered
 children_curr,Live wirh children

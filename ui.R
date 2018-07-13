@@ -22,13 +22,8 @@ dSiderBar <- dashboardSidebar(
   sidebarMenu(
     id = "tabs",
     menuItem("First Page", tabName = "fb", icon = icon("home")),
-    #sidebarMenuOutput("menu"),
+    menuItem("Conceptual Model", tabName = "mi", icon = icon("line-chart")),
     menuItem("Table Builder", tabName = "tb", icon = icon("table")),
-    # bsPopover("menu", "",trigger = "manual",
-    #           paste0("Model input - Visualising the Conceptual framework. <br> <br>",
-    #                  "Scenario Builder – Simulation with a new Scenario. <br> <br>",
-    #                  "Table Builder - Tabulate and/or plot the simulated outcome and compare to original."),
-    #           placement ="right", options = list(container = "body")),
     br(),
     box(
       title = "Scenarios Run",
@@ -38,13 +33,10 @@ dSiderBar <- dashboardSidebar(
       uiOutput("selectSB"),
       width = 12
     ),
-    # bsPopover("selectSB", "",
-    #           paste0("Lists all scenarios run and allows a scenario to be selected for comparison with base outcomes."),
-    #           placement ="right", options = list(container = "body")),
     br(),
     box(
       h5("Latest Update:"),
-      h5("2018-06-07"),
+      h5("2018-07-05"),
       h5("Contact email:"),
       a("Roy Lay-Yee", href = "mailto:r.layyee@auckland.ac.nz"),
       br(),
@@ -81,15 +73,8 @@ dashboardPage(
              ')
         )
         ),
-    tabItems(tabItem(
-      "fb",
-      # box(title ="Quick Link", width = 12,
-      #     status = "primary",solidHeader = TRUE,
-      #     p(actionButton("switchMI", "Model input"), "Visualising the Conceptual framework."),
-      #     p(actionButton("switchSB", "Scenario Builder"), "Simulation with a new Scenario"),
-      #     p(actionButton("switchTB", "Table Builder"), "Tabulate and/or plot the simulated outcome and compare to original.")
-      #     ),
-      box(
+    tabItems(tabItem("fb",
+       box(
         width = 12,
         h3("New Zealand as a Social Laboratory"),
         p(
@@ -155,25 +140,30 @@ dashboardPage(
         ),
         br(),
         br()
-        # actionButton(
-        #   inputId = 'ab1',
-        #   label = HTML(
-        #     "<b> <font size=\"4\"> Getting Started </font> </b> <br><b> <font size=\"4\"> (User Guide)  </font></b>"
-        #   ),
-        #   width = "200px",
-        #   hight = "100px",
-        #   onclick = "window.open('https://drive.google.com/open?id=0ByGI4aqoCDeldHdNaDBLQzFLXzg', '_blank')"
-        # )
         )
         ),
-      #box( width = 6,  includeHTML("ppt.Rhtml"))),
-      
+       
+       tabItem("mi", 
+               fluidRow(
+                 box(title ="Conceptual Framework", width = 12,
+                     status = "success",solidHeader = TRUE,
+                     img(src='Picture1.png', align = "left", 
+                         height="550", width="930")))),
+       
       tabItem("tb",
               # Sidebar with a slider input for the number of bins
               fluidRow(
+                
+                column(width = 3,
+                box(
+                  title = "Scenario description",
+                  width = 12,
+                  status = "warning",
+                  solidHeader = TRUE, 
+                  dataTableOutput("scenDes")),
                 box(
                   title = "Variable",
-                  width = 3,
+                  width = 12,
                   status = "primary",
                   solidHeader = TRUE,
                   selectInput(
@@ -183,32 +173,10 @@ dashboardPage(
                   ),
                   
                   uiOutput("uiTB"),
-                  
                   uiOutput("uiVar"),
-                  
                   uiOutput("uiSubGrpTB"),
-                  uiOutput("uiExprTB"),
+                  #uiOutput("uiExprTB"),
                   uiOutput("uiExprTB1"),
-                  
-                  actionButton("completeTB", "Insert"),
-                  actionButton("leftBrackTB", "("),
-                  actionButton("rightBrackTB", ")"),
-                  actionButton("andTB", "And"),
-                  actionButton("orTB", "Or"),
-                  actionButton("resetTB", "Reset"),
-                  uiOutput("uilogisetexprTB"),
-                  selectInput(
-                    "basePop",
-                    HTML(
-                      "<b> <font size=\"4\">STEP 5 (optional): </font></b> Apply subgroup to:"
-                    ),
-                    c(
-                      "Base population (Before scenario testing)",
-                      "Scenario population (After scenario testing)"
-                    ),
-                    selected = "Scenario population (After scenario testing)"
-                  ),
-                  
                   uiOutput("ciUI"),
                   
                   uiOutput("downloadUI"),
@@ -222,7 +190,7 @@ dashboardPage(
                     placement = "right",
                     options = list(container = "body")
                   )
-                ),
+                )),
                 # Show a plot of the generated distribution
                 tabBox(
                   width = 9,

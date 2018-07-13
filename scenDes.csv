@@ -1,0 +1,13 @@
+Name,Question,Description
+emp_86-91_81,What if the decade of economic reform (1981-1991) had never occurred?,Make the distribution of employment status in 1986 and 1991 the same as in 1981.
+emp_96-01_91,What if the decade of social reform (1991-2001) had never occurred?,Make the distribution of employment status in 1996 and 2001 the same as in 1991.
+birthreg_86-06_81,What if we had not liberalised our migration policies?,"For the 20-54 age group, make the distribution of overseas-born - as defined by region of birth - from 1986 to 2006 similar to that in 1981, removing any surplus."
+hinc__wchild_01-06_96,What if 20 hours ECE and Working for Families had not been enacted? ,"For people living with dependent children, reduce their household income in 2001 and 2006 to the 1996 level."
+emp_fem-wchild_01-06_96,What if 20 hours ECE and Working for Families had not been enacted?  ,"For women living with dependent children, make the distribution of employment status in 2001 and 2006 the same as in 1996."
+emp_fem-35-54_01_81,What if the baby boomer generation (born 1946-1965) had been much like the generation before (born 1926-1945)?,"For women aged 35-54, make the distribution of employment status in 2001 the same as in 1981."
+emp_fem-15-34_81_01,What if the baby boomer generation (born 1946-1965) had been much like the generation after (born 1966-1985)?,"For women aged 15-34, make the distribution of employment status in 1981 the same as in 2001."
+hous_35-54_01_81,What if the baby boomer generation (born 1946-1965) had been much like the generation before (born 1926-1945)?,"For people aged 35-54, make the distribution of housing tenure in 2001 the same as in 1981."
+hous_15-34_81_01,What if the baby boomer generation (born 1946-1965) had been much like the generation after (born 1966-1985)?,"For people aged 15-34, make the distribution of housing tenure in 1981 the same as in 2001."
+educ_81-96_01,What if we could identify and raise the impact of life-course capital?,Make the distribution of highest education level from 1981 to 2001 the same as in 2001.
+allvars_91-06_86,What would variable distributions look like in 2006 if New Zealanders had adhered to the life stage patterns of 1986?,Apply patterns for 1986 to the period from 1991 to 2006.
+allvars_M-like-NM,What would Maori life stage patterns look like if they followed non-Maori patterns?,"Apply patterns for non-Maori to Maori, from 1986 to 2006."
