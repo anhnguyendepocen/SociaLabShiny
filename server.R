@@ -70,10 +70,17 @@ shinyServer(function(input, output, session) {
   })
   
   output$uiSubGrpTB <- renderUI({
-    
-    input$input_type_TB
-    
-    selectInput("subGrp_TB",
+ 
+    req(input$dynamicTB)
+
+    if(any(tolower(varnames$FullName[varnames$allVar %in%
+                                     names(timeInvRes)]) %in% 
+           tolower(input$dynamicTB)))
+      selectInput("subGrp_TB",
+                  HTML("<b> <font size=\"4\">STEP 3 (optional): </font></b> Select ByGroup:"), 
+                  choices ='None')
+    else 
+      selectInput("subGrp_TB",
                 HTML("<b> <font size=\"4\">STEP 3 (optional): </font></b> Select ByGroup:"), 
                 choices = c(None='None',  subGrpVar))
   })
@@ -765,7 +772,7 @@ shinyServer(function(input, output, session) {
     tables.list$Year <- factor(tables.list$Year)
     
     p <- if("groupByData" %in% names(tables.list))
-      ggplot(tables.list, aes(fill=groupByData, y = Mean, x = Year))
+      ggplot(tables.list, aes(fill=groupByData, y = Mean, x = Year)) +  guides(fill=guide_legend(title=NULL))
     else 
       ggplot(tables.list, aes(y = Mean, x = Year)) 
     
@@ -779,7 +786,7 @@ shinyServer(function(input, output, session) {
     if(input$ci)
       p <- p + geom_errorbar(limitsGGplot, position=dodge, width=0.25)
     
-    ggplotly(p)
+    ggplotly(p + theme_bw())
   })
   
   output$barchartSC<- renderPlotly({
@@ -801,7 +808,7 @@ shinyServer(function(input, output, session) {
     tables.list$Year <- factor(tables.list$Year)
     
     p <- if("groupByData" %in% names(tables.list))
-      ggplot(tables.list, aes(fill=groupByData, y = Mean, x = Year))
+      ggplot(tables.list, aes(fill=groupByData, y = Mean, x = Year))  +  guides(fill=guide_legend(title=NULL))
     else 
       ggplot(tables.list, aes(y = Mean, x = Year)) 
     
@@ -816,7 +823,7 @@ shinyServer(function(input, output, session) {
     if(input$ci)
       p <- p + geom_errorbar(limitsGGplot, position=dodge, width=0.25)
     
-    ggplotly(p)
+    ggplotly(p + theme_bw())
   })
   
   output$barchart<- renderPlotly({
@@ -851,7 +858,7 @@ shinyServer(function(input, output, session) {
     if(input$ci)
       p <- p + geom_errorbar(limitsGGplot, position=dodge, width=0.25)
     
-    ggplotly(p)
+    ggplotly(p + theme_bw())
   })
   
   output$linePlotBase<- renderPlotly({
@@ -870,7 +877,7 @@ shinyServer(function(input, output, session) {
       tables.list <- tables.list[tables.list$Var==input$Var_TB, ] 
     
     p <- if("groupByData" %in% names(tables.list))
-      ggplot(tables.list, aes(y = Mean, x = Year)) + facet_wrap(~groupByData, scales = "free")
+      ggplot(tables.list, aes(y = Mean, x = Year)) + facet_wrap(~groupByData, scales = "free") 
     else 
       ggplot(tables.list, aes(y = Mean, x = Year)) 
     
@@ -885,7 +892,7 @@ shinyServer(function(input, output, session) {
     if(input$ci)
       p <- p + geom_errorbar(limitsGGplot, width=0.2)
     
-    ggplotly(p)
+    ggplotly(p + theme_bw())
   })
   
   output$linePlotSC<- renderPlotly({
@@ -905,7 +912,7 @@ shinyServer(function(input, output, session) {
     
 
     p <- if("groupByData" %in% names(tables.list))
-      ggplot(tables.list, aes(y = Mean, x = Year)) + facet_wrap(~groupByData, scales = "free")
+      ggplot(tables.list, aes(y = Mean, x = Year)) + facet_wrap(~groupByData, scales = "free") 
     else 
       ggplot(tables.list, aes(y = Mean, x = Year)) 
     
@@ -920,7 +927,7 @@ shinyServer(function(input, output, session) {
     if(input$ci)
       p <- p + geom_errorbar(limitsGGplot, width=0.2)
     
-    ggplotly(p)
+    ggplotly(p + theme_bw())
   })
   
   
@@ -958,7 +965,7 @@ shinyServer(function(input, output, session) {
       p <- p + geom_errorbar(limitsGGplot, width=0.25, 
                              position = dodge)
     
-    ggplotly(p)
+    ggplotly(p + theme_bw())
   })
   
   

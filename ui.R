@@ -36,7 +36,7 @@ dSiderBar <- dashboardSidebar(
     br(),
     box(
       h5("Latest Update:"),
-      h5("2018-07-05"),
+      h5("2018-07-13"),
       h5("Contact email:"),
       a("Roy Lay-Yee", href = "mailto:r.layyee@auckland.ac.nz"),
       br(),
