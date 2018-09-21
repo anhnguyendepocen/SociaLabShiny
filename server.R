@@ -59,19 +59,22 @@ shinyServer(function(input, output, session) {
     
     temp <- HTML("<b> <font size=\"4\">STEP 2: </font></b> Choose variable:")
 
-    switch(input$input_type_TB,
+    switch(req(input$input_type_TB),
+           
            "Percentage" = selectInput("dynamicTB", temp, 
-                                      choices = as.character(sort(varname.vec[catvars])), 
-                                      selected = as.character(sort(varname.vec[catvars]))[1]),
+                                      choices = as.character(varname.vec[catvars]), 
+                                      selected = as.character(varname.vec[catvars])[1]),
+           "Count" = selectInput("dynamicTB", temp, 
+                                      choices = as.character(varname.vec[catvars]), 
+                                      selected = as.character(varname.vec[catvars])[1]),
            "Mean" = selectInput("dynamicTB", temp, 
-                                choices =  as.character(sort(varname.vec[contvars])),
-                                selected = as.character(sort(varname.vec[contvars]))[1])
+                                choices =  as.character(varname.vec[contvars]),
+                                selected = as.character(varname.vec[contvars])[1])
            )
   })
   
   output$uiSubGrpTB <- renderUI({
- 
-    req(input$dynamicTB)
+    
 
     if(any(tolower(varnames$FullName[varnames$allVar %in%
                                      names(timeInvRes)]) %in% 
@@ -97,8 +100,9 @@ shinyServer(function(input, output, session) {
         varnames$allVar[tolower(varnames$FullName) ==
                           tolower(input$subGrp_TB)]]][["Var"]])
     }
-    
-    if(input$subGrp_TB == "Age Group") 
+   
+    if(input$subGrp_TB == "Age Group" & 
+       input$dynamicTB %in% varnames$FullName[c(12, 15, 21, 22)]) 
       choice <- 
         c(
           "Childhood (0-14)",
@@ -110,6 +114,17 @@ shinyServer(function(input, output, session) {
           "Older Life Retired (65-74)",
           "Later Life (75+)"
         )
+    else if (input$subGrp_TB == "Age Group")
+      choice <- 
+      c(
+        "Teenage Years (15-19)",
+        "Young Adulthood (20-24)",
+        "Middle Adulthood (25-34)" ,
+        "Later Adulthood (35-54)" ,
+        "Older Life Working (55-64)",
+        "Older Life Retired (65-74)",
+        "Later Life (75+)"
+      )
     
     isolate(
         selectInput("subGrp_TB2", input$subGrp_TB,
@@ -125,13 +140,13 @@ shinyServer(function(input, output, session) {
   
   summaryOutputTB <- reactive( { 
     
-    inputType = c("frequencies", "means")
+    inputType = c("frequencies", "count", "means")
     
-    names(inputType) = c("Percentage", "Mean")
+    names(inputType) = c("Percentage","Count", "Mean")
     
     
     selectVar <- names(varname.vec) [varname.vec %in% req(input$dynamicTB)]
-    
+
     results <- 
     if(input$subGrp_TB == "None"){
       
@@ -166,30 +181,13 @@ shinyServer(function(input, output, session) {
                               "Americas", "Middle East & Africa")
         
         temp
-      } 
-      
-      else {
+      } else {
         
         c(baseRes, timeInvRes)[[selectVar]]
       }
       
     } else if(input$subGrp_TB == "Age Group"){
-      
-      
-      # if(selectVar == "birthreg"){
-      #   
-      #   temp <- timeInvRes$birthregByAge
-      #   
-      #   temp$Var <- factor(temp$Var)
-      #   
-      #   levels(temp$Var) <- c("NZ", "Pacific", "Asia", "Europe", 
-      #                         "Americas", "Middle East & Africa")
-      # } else {
-      # 
-      # temp <- byAgeRes[[selectVar]]
-      # }
-      
-      
+
       temp <- byAgeRes[[selectVar]]
       
       temp$groupByData[temp$groupByData ==
@@ -215,21 +213,7 @@ shinyServer(function(input, output, session) {
       
       temp
     }  else if(input$subGrp_TB == "Gender"){
-      
-      
-      # if(selectVar == "birthreg"){
-      #   
-      #   temp <- timeInvRes$birthregBySex
-      #   
-      #   temp$Var <- factor(temp$Var)
-      #   
-      #   levels(temp$Var) <- c("NZ", "Pacific", "Asia", "Europe", 
-      #                         "Americas", "Middle East & Africa")
-      # } else {
-      #   
-      #   temp <- bySexRes[[selectVar]]
-      # }
-      
+    
       temp <- bySexRes[[selectVar]]
       
       temp
@@ -252,11 +236,18 @@ shinyServer(function(input, output, session) {
       results$Var <- gsub("quantile", "quintile", results$Var)
       
       
-      results$Var <- factor(results$Var , 
-                            levels =  c("Median", "1st quintile", 
-                            "2nd quintile", "3rd quintile", "4th quintile"))
+      results$Var <- factor(results$Var ,
+                            levels =  c( "1st quintile",
+                                         "2nd quintile","Median", "3rd quintile",
+                                         "4th quintile"))
       
-      levels(results$Var)[2] <- "1st quintile (least)"
+      
+      levels(results$Var)<- c("1st quintile (least)",
+                                  "2nd quintile", 
+                                  "3rd quintile", 
+                                  "4th quintile", 
+                                  "5th quintile")
+      
     } else if(selectVar == "emp_curr"){
       
       results$Var <- factor(results$Var, levels = 
@@ -297,8 +288,18 @@ shinyServer(function(input, output, session) {
                                 "$100,001 or More"
                               ) )
       
+    } else if(selectVar == "partner_curr"){
+      results$Var <- factor(results$Var, levels =
+                              c(
+                                "not living with a partner" ,
+                                "living with a partner"
+                              ) )
+    } else if (input$input_type_TB != "Mean") {
+
+      results$Var <- factor(results$Var)
     }
     
+
     
     if(input$subGrp_TB != "None" &
        !is.null(input$subGrp_TB2)) {
@@ -309,6 +310,19 @@ shinyServer(function(input, output, session) {
         results <-  results
       }
     }
+
+    if(input$input_type_TB == "Count")
+      results <- results %>% 
+            select(-Mean, -Lower, -Upper) %>%
+            rename(Mean = MeanCount, 
+                   Lower = LowerCount, 
+                   Upper = UpperCount)
+    
+    
+    if(input$input_type_TB == "Percentage")
+      results <- results %>% 
+      select(-MeanCount, -LowerCount, -UpperCount)
+    
     
     
     baseTB <<- results 
@@ -320,7 +334,7 @@ shinyServer(function(input, output, session) {
     # if(length(unique(summaryOutputTB()$Year))!=1)
    
     
-    varlist <- as.character( unique(req(summaryOutputTB())$Var))
+    varlist <- levels(req(summaryOutputTB())$Var)
     
     # If it is a binary outcome, pick the second group as default
     if(length(varlist) == 2){
@@ -339,7 +353,8 @@ shinyServer(function(input, output, session) {
     results <- req(summaryOutputTB())
     
     
-   if(input$input_type_TB == "Percentage" &  "groupByData" %in% names(results) ){
+   if((input$input_type_TB == "Percentage" | input$input_type_TB == "Count") & 
+      "groupByData" %in% names(results) ){
       
       if(length(unique(results$Var)) == 2)
         results <- results[results$Var==input$Var_TB, ]
@@ -347,7 +362,8 @@ shinyServer(function(input, output, session) {
       results <- dcast(melt(results, id.vars = c("Var", "groupByData", "Year")), 
                        Year~groupByData + Var + variable)
       
-    }else if(input$input_type_TB == "Percentage"){
+    }else if((input$input_type_TB == "Percentage" | input$input_type_TB == "Count")){
+      
       if(length(unique(results$Var)) == 2)
         results <- results[results$Var==input$Var_TB, ]
       
@@ -386,12 +402,19 @@ shinyServer(function(input, output, session) {
     colnames(results) <- 
       paste0('<span style="font-size:20px">',colnames(results),'</span>')
     
-    DT::datatable(results, rownames = FALSE, extensions = 'Scroller', escape = FALSE,
+    tables<-
+      DT::datatable(results, rownames = FALSE, extensions = 'Scroller', escape = FALSE,
                   options = list(pageLength = 9999999, dom = 't',
                                  scrollX = TRUE,  deferRender = TRUE, scrollY = 600,
                                  scrollCollapse = TRUE))  %>%
-      formatStyle(1:ncol(results), 'font-size' = '20px') %>% 
-      formatRound(which(!colnames(results) %in% notToRound), digits = 1)
+      formatStyle(1:ncol(results), 'font-size' = '20px') 
+    
+    
+    if(input$input_type_TB == "Percentage")
+      tables %>% formatRound(which(!colnames(results) %in% notToRound), digits = 1)
+    else 
+      tables %>% formatRound(which(!colnames(results) %in% notToRound), digits = 0)
+    
   })
   
   
@@ -400,7 +423,7 @@ shinyServer(function(input, output, session) {
     
     selectInput("selSB", "Select Scenario for comparison:",
                 choices =c("allvars_91-06_86", 
-                            "allvars_M-like-NM",
+                            # "allvars_M-like-NM",
                           "emp_86-91_81",
                            "emp_96-01_91",
                            "birthreg_86-06_81",
@@ -421,10 +444,15 @@ shinyServer(function(input, output, session) {
   output$scenDes <- renderDataTable({ 
 
     res <- data.frame(t(scenDes[scenDes$Name == input$selSB, -1]))
+
+    res[,1] <- as.character(res[,1])
     
+    res[1,1] <- paste0("<b> Question: </b>", res[1,1])
+    res[2,1] <- paste0("<b>Description: </b>", res[2,1])
+
     colnames(res) <- input$selSB
     
-    datatable(res, options = list(dom = 't'))
+    datatable(res, options = list(dom = 't'), rownames = NULL, escape = FALSE)
     
     })
   
@@ -439,9 +467,9 @@ shinyServer(function(input, output, session) {
     load(paste0("base/", input$selSB, ".Rata"))
  
     
-    inputType = c("frequencies", "means", "quantiles")
+    inputType = c("frequencies", "means", "count")
     
-    names(inputType) = c("Percentage", "Mean","Quantile" )
+    names(inputType) = c("Percentage", "Mean","Count" )
     
     selectVar <- names(varname.vec) [varname.vec %in% req(input$dynamicTB)]
   
@@ -457,16 +485,14 @@ shinyServer(function(input, output, session) {
             
             temp$Var <- factor(temp$Var, 
                                levels =
-                                 c(
-                                   "Childhood (0-14)",
+                                 c("Childhood (0-14)",
                                    "Teenage Years (15-19)",
                                    "Young Adulthood (20-24)",
                                    "Middle Adulthood (25-34)" ,
                                    "Later Adulthood (35-54)" ,
                                    "Older Life Working (55-64)",
                                    "Older Life Retired (65-74)",
-                                   "Later Life (75+)"
-                                 ))
+                                   "Later Life (75+)" ))
             
             temp
           } else if(selectVar == "birthreg"){
@@ -562,11 +588,21 @@ shinyServer(function(input, output, session) {
       results$Var <- gsub("quantile", "quintile", results$Var)
       
       
-      results$Var <- factor(results$Var , 
-                            levels =  c("Median", "1st quintile", 
-                                        "2nd quintile", "3rd quintile", "4th quintile"))
+      results$Var <- factor(results$Var ,
+                            levels =  c( "1st quintile",
+                                        "2nd quintile","Median", "3rd quintile",
+                  "4th quintile"))
       
-      levels(results$Var)[2] <- "1st quintile (least)"
+      
+      levels(results$Var) <- c("1st quintile (least)",
+                                  "2nd quintile", 
+                                  "3rd quintile", 
+                                  "4th quintile", 
+                                  "5th quintile")
+      
+      
+      
+      
     } else if(selectVar == "emp_curr"){
       
       results$Var <- factor(results$Var, levels = 
@@ -606,6 +642,17 @@ shinyServer(function(input, output, session) {
                                 "$100,001 or More"
                               ) )
       
+    } else if(selectVar == "partner_curr"){
+      results$Var <- factor(results$Var, levels =
+                              c(
+                                "not living with a partner" ,
+                                "living with a partner"
+                              ) )
+      
+      
+    } else if (input$input_type_TB != "Mean") {
+      
+      results$Var <- factor(results$Var)
     }
 
     
@@ -618,6 +665,21 @@ shinyServer(function(input, output, session) {
         results <-  results
       }
     }
+    
+    
+    if(input$input_type_TB == "Count")
+      results <- results %>% 
+      select(-Mean, -Lower, -Upper) %>%
+      rename(Mean = MeanCount, 
+             Lower = LowerCount, 
+             Upper = UpperCount)
+    
+    
+    if(input$input_type_TB == "Percentage")
+      results <- results %>% 
+      select(-MeanCount, -LowerCount, -UpperCount)
+    
+    
     
     SBTB <<- results
     
@@ -633,14 +695,15 @@ shinyServer(function(input, output, session) {
     if(results$Year[1] ==  "Childhood" | results$Year[1] ==  "At birth"){
 
 
-    } else if(input$input_type_TB == "Percentage" &  "groupByData" %in% names(results) ){
+    } else if((input$input_type_TB == "Percentage" | input$input_type_TB == "Count") &  
+              "groupByData" %in% names(results) ){
       if(length(unique(results$Var)) == 2)
         results <- results[results$Var==input$Var_TB, ]
 
       results <- dcast(melt(results, id.vars = c("Var", "groupByData", "Year")),
                        Year~groupByData + Var + variable)
 
-    }else if(input$input_type_TB == "Percentage"){
+    }else if((input$input_type_TB == "Percentage" | input$input_type_TB == "Count")){
 
       if(length(unique(results$Var)) == 2)
         results <- results[results$Var==input$Var_TB, ]
@@ -681,13 +744,20 @@ shinyServer(function(input, output, session) {
     colnames(results) <-
       paste0('<span style="font-size:20px">',colnames(results),'</span>')
 
-    DT::datatable(results, rownames = FALSE, extensions = 'Scroller', escape = FALSE,
+    
+    tables <- 
+      DT::datatable(results, rownames = FALSE, extensions = 'Scroller', escape = FALSE,
                   options = list(pageLength = 9999999, dom = 't',
                                  scrollX = TRUE,  deferRender = TRUE, scrollY = 600,
                                  scrollCollapse = TRUE))  %>%
-      formatStyle(1:ncol(results), 'font-size' = '20px') %>%
-      formatRound(which(!colnames(results) %in% notToRound), digits = 1)
-
+      formatStyle(1:ncol(results), 'font-size' = '20px') 
+    
+    
+    if(input$input_type_TB == "Percentage")
+      tables %>% formatRound(which(!colnames(results) %in% notToRound), digits = 1)
+    else 
+      tables %>% formatRound(which(!colnames(results) %in% notToRound), digits = 0)
+    
   })
   
   # Display results from here  #####
@@ -712,21 +782,13 @@ shinyServer(function(input, output, session) {
   output$downloadTable <- downloadHandler(
     filename = function() {
       paste('Table Result-',  input$input_type_TB, " ", 
-            varname.vec[input$dynamicTB], " ", 
+            input$dynamicTB, " ", 
             input$selSB, '.xlsx', sep='')
     },
     content = function(con) {
-      
-      print(rv$finalFormulaSB)
-      
-      temp <- data.frame(Variable = varname.vec[input$dynamicTB])
-      
-      if(input$selSB != "")
-        temp$Scenario = input$selSB
-      
-      if(!is.null(rv$finalFormulaSB))
-        temp$SubgroupFormula = rv$finalFormulaSB
-      
+     
+      temp <- data.frame(Variable = input$dynamicTB)
+  
       rv$tableResult$info <- t(temp)
       write.xlsx(rv$tableResult, con)
       rv$tableResult <- list()
@@ -766,7 +828,7 @@ shinyServer(function(input, output, session) {
     limitsGGplot <- aes(ymax = Upper, ymin=Lower)
     dodge <- position_dodge(width=0.9)
     
-    if(input$input_type_TB == "Percentage")
+    if(input$input_type_TB == "Percentage" | input$input_type_TB == "Count")
       tables.list <- tables.list[tables.list$Var==input$Var_TB, ]
     
     tables.list$Year <- factor(tables.list$Year)
@@ -783,10 +845,13 @@ shinyServer(function(input, output, session) {
     if(input$input_type_TB == "Percentage")
       p  <-  p + ylab("Percentage")
     
+    if(input$input_type_TB == "Count")
+      p  <-  p + ylab("Count")
+    
     if(input$ci)
       p <- p + geom_errorbar(limitsGGplot, position=dodge, width=0.25)
     
-    ggplotly(p + theme_bw())
+    ggplotly(p + theme_bw()+ scale_fill_grey(start = 0, end = .9))
   })
   
   output$barchartSC<- renderPlotly({
@@ -802,7 +867,7 @@ shinyServer(function(input, output, session) {
     limitsGGplot <- aes(ymax = Upper, ymin=Lower)
     dodge <- position_dodge(width=0.9)
     
-    if(input$input_type_TB == "Percentage")
+    if(input$input_type_TB == "Percentage" | input$input_type_TB == "Count")
       tables.list <- tables.list[tables.list$Var==input$Var_TB, ]
     
     tables.list$Year <- factor(tables.list$Year)
@@ -820,10 +885,13 @@ shinyServer(function(input, output, session) {
     if(input$input_type_TB == "Percentage")
       p  <-  p + ylab("Percentage")
     
+    if(input$input_type_TB == "Count")
+      p  <-  p + ylab("Count")
+    
     if(input$ci)
       p <- p + geom_errorbar(limitsGGplot, position=dodge, width=0.25)
     
-    ggplotly(p + theme_bw())
+    ggplotly(p + theme_bw()+ scale_fill_grey(start = 0, end = .9))
   })
   
   output$barchart<- renderPlotly({
@@ -835,7 +903,7 @@ shinyServer(function(input, output, session) {
     limitsGGplot <- aes(ymax = Upper, ymin=Lower)
     dodge <- position_dodge(width=0.9)
     
-    if(input$input_type_TB == "Percentage")
+    if(input$input_type_TB == "Percentage" | input$input_type_TB == "Count")
       tables.list <- tables.list[tables.list$Var==input$Var_TB, ]
     
     tables.list$Year <- factor(tables.list$Year)
@@ -854,11 +922,14 @@ shinyServer(function(input, output, session) {
     if(input$input_type_TB == "Percentage")
       p  <-  p + ylab("Percentage")
     
+    if(input$input_type_TB == "Count")
+      p  <-  p + ylab("Count")
+    
     
     if(input$ci)
       p <- p + geom_errorbar(limitsGGplot, position=dodge, width=0.25)
     
-    ggplotly(p + theme_bw())
+    ggplotly(p + theme_bw()+ scale_fill_grey(start = 0, end = .9))
   })
   
   output$linePlotBase<- renderPlotly({
@@ -873,7 +944,7 @@ shinyServer(function(input, output, session) {
     
     tables.list$Year <- as.numeric(tables.list$Year)
     
-    if(input$input_type_TB == "Percentage")
+    if(input$input_type_TB == "Percentage" | input$input_type_TB == "Count")
       tables.list <- tables.list[tables.list$Var==input$Var_TB, ] 
     
     p <- if("groupByData" %in% names(tables.list))
@@ -888,6 +959,9 @@ shinyServer(function(input, output, session) {
     
     if(input$input_type_TB == "Percentage")
       p  <-  p + ylab("Percentage")
+    
+    if(input$input_type_TB == "Count")
+      p  <-  p + ylab("Count")
     
     if(input$ci)
       p <- p + geom_errorbar(limitsGGplot, width=0.2)
@@ -907,7 +981,7 @@ shinyServer(function(input, output, session) {
     
     tables.list$Year <- as.numeric(tables.list$Year)
     
-    if(input$input_type_TB == "Percentage")
+    if(input$input_type_TB == "Percentage" | input$input_type_TB == "Count")
       tables.list <- tables.list[tables.list$Var==input$Var_TB, ] 
     
 
@@ -923,6 +997,9 @@ shinyServer(function(input, output, session) {
     
     if(input$input_type_TB == "Percentage")
       p  <-  p + ylab("Percentage")
+    
+    if(input$input_type_TB == "Count")
+      p  <-  p + ylab("Count")
     
     if(input$ci)
       p <- p + geom_errorbar(limitsGGplot, width=0.2)
@@ -942,14 +1019,14 @@ shinyServer(function(input, output, session) {
     
     tables.list$Year <- as.numeric(tables.list$Year)
     
-    if(input$input_type_TB == "Percentage")
+    if(input$input_type_TB == "Percentage" | input$input_type_TB == "Count")
       tables.list <- tables.list[tables.list$Var==input$Var_TB, ] 
     
     
     p <- if("groupByData" %in% names(tables.list))
-      ggplot(tables.list, aes(y = Mean, x = Year, colour=Scenario)) + facet_wrap(~groupByData, scales = "free")
+      ggplot(tables.list, aes(y = Mean, x = Year, shape=Scenario, linetype = Scenario)) + facet_wrap(~groupByData, scales = "free")
     else 
-      ggplot(tables.list, aes(y = Mean, x = Year, colour=Scenario)) 
+      ggplot(tables.list, aes(y = Mean, x = Year, shape=Scenario, linetype = Scenario)) 
     
 
     
@@ -960,6 +1037,10 @@ shinyServer(function(input, output, session) {
     
     if(input$input_type_TB == "Percentage")
       p  <-  p + ylab("Percentage")
+    
+    if(input$input_type_TB == "Count")
+      p  <-  p + ylab("Count")
+    
     
     if(input$ci)
       p <- p + geom_errorbar(limitsGGplot, width=0.25, 
@@ -972,20 +1053,18 @@ shinyServer(function(input, output, session) {
   output$downloadPlot <- downloadHandler(
     filename = function() {
       
-      if(input$input_type_TB == "Quantile"){
-        type <- "Box"
-      }else{   
+
         if(last_plot()$x$data[[1]]$type == "scatter")
           type <- "Line"
         else 
           type <- "Bar"
-      }
+  
       
       paste(type,'Plot-', input$input_type_TB, "-", 
             input$dynamicTB, '.png', sep='')
     },
     content = function(con) {
-      ggsave(con)
+      ggsave(con, width = 30, height = 20, units = "cm")
     }
   )
   
