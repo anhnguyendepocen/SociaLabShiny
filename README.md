@@ -1,4 +1,4 @@
-# NZLabShiny
+# SociaLabShiny
 
 The aim is to model NZ society with an emphasis on the impact of
 personal and household resources in helping individuals to achieve 
@@ -43,4 +43,4 @@ assessment for the Integrated Data Infrastructure available from www.stats.govt.
 ## To cite this application, please use the following,
 
 Davis, P., Lay-Yee, R., Chang, K., von Randow, M., Milne, B. (2017) Shiny application: New Zealand as a Social Laboratory. 
-https://compassnz.shinyapps.io/NZLabShiny/
+https://compassnz.shinyapps.io/SociaLabShiny/
