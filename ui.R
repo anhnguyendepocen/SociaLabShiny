@@ -104,7 +104,7 @@ dashboardPage(
         p(
           "We ask such pertinent questions here in a series of scenarios the results for which can
           be interrogated and visualised via this Shiny app, an accompaniment to our book 
-          \"imulating Societal Change - Counterfactual Modelling for Social and Policy Inquiry\" -
+          \"Simulating Societal Change: Counterfactual Modelling for Social and Policy Inquiry\" -
           Peter Davis & Roy Lay-Yee (Springer 2018)."
         ),
         
@@ -188,7 +188,7 @@ dashboardPage(
                   selectInput(
                     "input_type_TB",
                     HTML("<b> <font size=\"4\">STEP 1: </font></b> Select Summary Measure"),
-                    choices = c("Percentage", "Count", "Mean"), selected = "Percentage"
+                    choices = c("Percentage", "Mean"), selected = "Percentage"
                   ),
                   
                   uiOutput("uiTB"),

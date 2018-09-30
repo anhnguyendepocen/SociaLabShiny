@@ -5,8 +5,8 @@ account: compassnz
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 459665
-bundleId: 1596963
+bundleId: 1613974
 url: https://compassnz.shinyapps.io/SociaLabShiny/
-when: 1537488947.02348
+when: 1538305358.38877
 asMultiple: FALSE
 asStatic: FALSE
